@@ -1,9 +1,10 @@
-const { User, validateRegister } = require("../model/User");
-const bycrypt = require("bcryptjs");
+const { User, validateRegister, validateLogin } = require("../model/User");
+const bycrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 
 const register = async (req, res) => {
+	// validate input
 	try {
 		await validateRegister(req.body);
 	} catch (error) {
@@ -39,7 +40,7 @@ const register = async (req, res) => {
 		const token = jwt.sign(payload, jwtPrivateKey);
 
 		await user.save();
-		
+
 		// set the token in the header to stay logged in
 		res.header("x-auth-token", token);
 
@@ -47,10 +48,53 @@ const register = async (req, res) => {
 			message: "Registration compelted succsessfully",
 			token: token
 		});
-
 	} catch (error) {
-		return res.status(500).json({ message: "server error" });
+		return res.status(500).json({ message: error.message });
 	}
 };
 
-module.exports = { register };
+const login = async (req, res) => {
+	// validate input
+	try {
+		await validateLogin(req.body);
+	} catch (error) {
+		return res.status(400).json(error.errors);
+	}
+	const { email, password } = req.body;
+
+	try {
+		let user = await User.findOne({ email: email });
+
+		if (!user) {
+			return res
+				.status(400)
+				.json({ message: "Invalid email or password" });
+		}
+
+		const isValidPassword = await bycrypt.compare(password, user.password);
+
+		if (!isValidPassword) {
+			return res
+				.status(400)
+				.json({ message: "Invalid email or password" });
+		}
+
+		// create and set JWT
+		payload = {
+			email: user.email,
+			password: user.password
+		};
+
+		const jwtPrivateKey = config.get("user.jwtPrivateKey");
+		const token = jwt.sign(payload, jwtPrivateKey);
+
+		// set the token in the header to stay logged in
+		res.header("x-auth-token", token);
+
+		return res.status(200).json({ message: "You are logged in" });
+	} catch (error) {
+		return res.status(500).json({ message: error.message });
+	}
+};
+
+module.exports = { register, login };

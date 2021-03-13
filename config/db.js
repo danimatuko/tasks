@@ -5,14 +5,15 @@ const connectToDB = () => {
 
 	mongoose.connect(connectionString, {
 		useNewUrlParser: true,
-		useUnifiedTopology: true
+		useUnifiedTopology: true,
+		useCreateIndex: true
 	});
 
 	const db = mongoose.connection;
 
 	db.on("error", (err) => console.log("conncection error!!!", err.message));
 
-	db.once("open", () => console.log("Connected to database"));
+	db.once("open", () => console.log("connected to database..."));
 };
 
 module.exports = connectToDB;
