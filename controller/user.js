@@ -11,7 +11,7 @@ const register = async (req, res) => {
 		return res.status(400).json(error.errors);
 	}
 
-	const { firstName, lastName, email, password } = req.body;
+	const { firstName, lastName, email, password, role } = req.body;
 
 	try {
 		let user = await User.findOne({ email: email });
@@ -22,7 +22,8 @@ const register = async (req, res) => {
 			firstName,
 			lastName,
 			email,
-			password
+			password,
+			role
 		});
 
 		// hash password before saving in DB
@@ -32,7 +33,8 @@ const register = async (req, res) => {
 		// create and return a JWT
 		payload = {
 			email: user.email,
-			password: user.password
+			password: user.password,
+			role:user.role
 		};
 
 		const jwtPrivateKey = config.get("user.jwtPrivateKey");
@@ -82,7 +84,8 @@ const login = async (req, res) => {
 		// create and set JWT
 		payload = {
 			email: user.email,
-			password: user.password
+			password: user.password,
+			role:user.role
 		};
 
 		const jwtPrivateKey = config.get("user.jwtPrivateKey");
@@ -91,7 +94,9 @@ const login = async (req, res) => {
 		// set the token in the header to stay logged in
 		res.header("x-auth-token", token);
 
-		return res.status(200).json({ message: "You are logged in" });
+		return res
+			.status(200)
+			.json({ message: "You are logged in", token: token });
 	} catch (error) {
 		return res.status(500).json({ message: error.message });
 	}
