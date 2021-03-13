@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
 	role: {
 		type: String,
 		required: true
+	},
+	projects: {
+		type: Array,
+		default: []
 	}
 });
 
@@ -32,7 +36,8 @@ const registerSchema = yup.object().shape({
 	lastName: yup.string().required(),
 	email: yup.string().email().required(),
 	password: yup.string().min(6).required(),
-	role: yup.string().required()
+	role: yup.string().required(),
+	projects: yup.array()
 });
 
 const loginSchema = yup.object().shape({

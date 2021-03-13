@@ -23,7 +23,7 @@ const register = async (req, res) => {
 			lastName,
 			email,
 			password,
-			role
+			role,
 		});
 
 		// hash password before saving in DB
@@ -34,7 +34,7 @@ const register = async (req, res) => {
 		payload = {
 			email: user.email,
 			password: user.password,
-			role:user.role
+			role: user.role
 		};
 
 		const jwtPrivateKey = config.get("user.jwtPrivateKey");
@@ -85,7 +85,7 @@ const login = async (req, res) => {
 		payload = {
 			email: user.email,
 			password: user.password,
-			role:user.role
+			role: user.role
 		};
 
 		const jwtPrivateKey = config.get("user.jwtPrivateKey");
